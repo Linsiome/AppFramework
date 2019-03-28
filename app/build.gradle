@@ -50,14 +50,15 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false     // 是否混淆
-            shrinkResources false   //是否去除无用资源
+            minifyEnabled true     // 是否混淆
+            shrinkResources true   //是否移除无用的resource文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
             debuggable false
         }
         debug {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
             debuggable true
