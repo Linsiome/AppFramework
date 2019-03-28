@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="1000"
+    android:fromXDelta="0"
+    android:interpolator="@anim/circle"
+    android:toXDelta="10" />
+
+    <!--android:fromXDelta="0"-->
+    <!--android:toXDelta="100"-->
+    <!--是控制抖动的范围的，上面的代码是在x轴进行抖动，如果把x替换为y就是在y轴进行抖动，当然也可以在x,y轴同时抖动-->

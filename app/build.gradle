@@ -1,0 +1,154 @@
+apply plugin: 'com.android.application'
+
+android {
+    //配置文件放在config.gradle文件中
+    compileSdkVersion rootProject.ext.android["compileSdkVersion"]
+
+    defaultConfig {
+        applicationId rootProject.ext.android["applicationId"]
+        minSdkVersion rootProject.ext.android["minSdkVersion"]
+        targetSdkVersion rootProject.ext.android["targetSdkVersion"]
+        versionCode rootProject.ext.android["versionCode"]
+        versionName rootProject.ext.android["versionName"]
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        //SO库配置
+        ndk {
+            //设置支持的.SO库架构
+            abiFilters 'armeabi', 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a', "mips"
+        }
+
+        packagingOptions { exclude 'META-INF/rxjava.properties' }
+    }
+
+    signingConfigs {
+        // 从local.properties文件中读取配置信息
+        InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream();
+        Properties properties = new Properties()
+        properties.load(inputStream)
+
+        release {
+            storeFile file(properties['RELEASE_STORE_FILE'])
+            storePassword properties.getProperty('RELEASE_STORE_PASSWORD');
+            keyAlias properties.getProperty('RELEASE_KEY_ALIAS')
+            keyPassword properties.getProperty('RELEASE_KEY_PASSWORD')
+        }
+        debug {
+            storeFile file(properties['RELEASE_STORE_FILE'])
+            storePassword properties['RELEASE_STORE_PASSWORD']
+            keyAlias properties['RELEASE_KEY_ALIAS']
+            keyPassword properties['RELEASE_KEY_PASSWORD']
+        }
+    }
+
+    //java版本
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false     // 是否混淆
+            shrinkResources false   //是否去除无用资源
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            debuggable false
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+            debuggable true
+        }
+    }
+
+    //多渠道打包
+    flavorDimensions "default"  // gradle 3.0.0 以上需要有flavorDimensions
+    productFlavors {
+        All {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "All"]
+            // 动态添加 string.xml 字段；
+            // 注意，这里是添加，在 string.xml 不能有这个字段，会重名！！！
+//            resValue "string", "app_name", "B365健康管理"
+        }
+        YingYongBao {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "YingYongBao"]
+//            resValue "string", "app_name", "B365健康管理软件"
+        }
+        XiaoMi {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "XiaoMi"]
+//            resValue "string", "app_name", "B365健康管理"
+        }
+        HuaWei {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "HuaWei"]
+//            resValue "string", "app_name", "B365健康管理"
+        }
+        MeiZu {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "MeiZu"]
+//            resValue "string", "app_name", "B365健康管理"
+        }
+    }
+
+    //修改生成的apk文件名
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def buildTypeName = variant.buildType.name
+                def productFlavorName = variant.productFlavors[0].name
+                def version = "${versionName}_${versionCode}"
+                def fileName = "傲澜优创_${buildTypeName}_${productFlavorName}_${version}.apk".toLowerCase()
+                //output.outputFile = new File(outputFile.parent, fileName) //(gradle 3.0.0 以下)
+                outputFileName = fileName //(gradle 3.0.0 以上)
+            }
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    implementation 'com.android.support:support-v4:28.0.0'
+    testImplementation 'junit:junit:4.12'
+    //noinspection GradleCompatible
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    api rootProject.ext.dependencies["constraint-layout"]
+    api rootProject.ext.dependencies["appcompat-v7"]
+    api rootProject.ext.dependencies["recyclerview-v7"]
+    api rootProject.ext.dependencies["design"]
+
+    //dagger2
+    api 'com.google.dagger:dagger:2.19'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.19'
+    api 'org.glassfish:javax.annotation:10.0-b28'
+    //dagger-android
+    api 'com.google.dagger:dagger-android:2.19'
+    api 'com.google.dagger:dagger-android-support:2.19'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.19'
+    //butterknife
+    api 'com.jakewharton:butterknife:8.4.0'
+    annotationProcessor "com.jakewharton:butterknife-compiler:8.4.0"
+    //rxjava
+    api 'io.reactivex.rxjava2:rxjava:2.1.0'
+    api 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    api 'com.squareup.retrofit2:retrofit:2.3.0'
+    api 'com.squareup.retrofit2:converter-gson:2.3.0'
+    api 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
+    api 'com.squareup.okhttp3:logging-interceptor:3.8.1'
+
+    api 'com.alibaba:fastjson:1.1.55.android'
+    api 'com.orhanobut:logger:1.15'
+    api 'com.github.bumptech.glide:glide:3.7.0'
+    api 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-3'
+    api 'com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar'
+    api 'org.greenrobot:eventbus:3.0.0'
+    api files('libs/lite-orm-1.9.2.jar')
+//    api 'me.yokeyword:fragmentation:1.3.6'
+
+    api project(':loadingdialog')
+}

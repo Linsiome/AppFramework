@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<cycleInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:cycles="7" />
+    <!--这一项是设置抖动的次数的，2为抖动两次-->
